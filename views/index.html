@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="index.css"> 
+
+</head>
+
+<body>
+    <header>
+        <h1>Expense Tracker</h1>
+    </header>
+
+    <main>
+        <section id="balance-container">
+            <h2>Your Balance</h2>
+            <p id="balance">$0.00</p>
+        </section>
+
+        <section id="income-expense-container">
+            <div>
+                <h3>Income</h3>
+                <p id="income">$0.00</p>
+            </div>
+            <div>
+                <h3>Expenses</h3>
+                <p id="expense">$0.00</p>
+            </div>
+        </section>
+
+        <section id="transaction-form-container">
+            <h3 id="form-title">Add New Transaction</h3>
+            <form id="transactionForm">
+                <div>
+                    <label for="description">Description</label>
+                    <input type="text" id="description" name="description" placeholder="Enter a description" required>
+                </div>
+                <div>
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" name="amount" step="0.01" placeholder="Enter amount" required>
+                </div>
+                <div>
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+                <div>
+                    <label for="category_id">Category</label>
+                    <select id="category_id" name="category_id" required>
+                      <option value="1">Food</option>
+                      <option value="2">Transportation</option>
+                      <option value="3">Housing</option>
+                      <option value="4">Utilities</option>
+                      <option value="5">Healthcare</option>
+                      <option value="6">Entertainment</option>
+                      <option value="7">Education</option>
+                      <option value="8">Shopping</option>
+                      <option value="9">Personal Care</option>
+                      <option value="10">Debt Payments</option>
+                      <option value="11">Savings</option>
+                      <option value="12">Gifts & Donations</option>
+                      <option value="13">Miscellaneous</option>
+                  </select>
+                </div>
+                <input type="hidden" id="transaction_id" name="transaction_id">
+                <button type="submit">Add Transaction</button> 
+            </form>
+        </section>
+
+        <section id="transaction-list-container">
+            <h3>Transaction History</h3>
+            <ul id="transactionList"></ul>
+        </section>
+
+        <section id="status-container">
+            <p id="status"></p>
+        </section>
+
+        <div id="editModal" class="modal">
+          <div class="modal-content">
+              <span class="close-btn">&times;</span>
+              <h2>Edit Transaction</h2>
+              <form id="editForm">
+
+              </form>
+          </div>
+      </div>
+
+    </main>
+
+    <script src="index.js"></script>
+</body>
+
+</html>

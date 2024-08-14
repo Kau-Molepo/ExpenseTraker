@@ -1,0 +1,349 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
+:root {
+    --bg-color: #f6f8fa;
+    --text-color: #1d1f27;
+    --main-color: #3a3dbe;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    padding: 2rem;
+    font-family: "Poppins", sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.background {
+    height: 100vh;
+    background-image: url('./background.jpg'); /* Make sure the path is correct */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+h1 {
+    text-align: center;
+    font-size: 1.5rem;
+}
+
+h3,
+header,
+ul {
+    margin-bottom: 0.5rem;
+}
+
+main {
+    max-width: 400px;
+    margin: 1rem auto;
+    background-color: #fff;
+    padding: 1rem;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px; /* Add rounded corners for visual appeal */
+}
+
+header {
+    background-color: var(--main-color);
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+    border-radius: 5px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+header div {
+    padding: 5px;
+}
+
+header div:first-child {
+    flex-basis: 100%;
+    font-size: 2.25rem;
+    font-weight: 600;
+}
+
+header div:nth-child(n + 2) {
+    flex-basis: 50%;
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+header h5 {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+form input:not(#type),
+form button {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    height: 42px;
+    font-family: "Poppins", sans-serif;
+    font-size: 1rem;
+}
+
+form button {
+    background-color: var(--main-color);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    cursor: pointer; /* Indicate that it's clickable */
+    transition: background-color 0.3s; /* Smooth transition on hover */
+}
+
+/* Hover and active states for buttons */
+form button:hover {
+    background-color: #3336b4; 
+}
+
+form button:active {
+    background-color: #292cb0; 
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); 
+}
+
+form label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+form div:nth-child(-n + 2) {
+    flex-basis: 100%;
+}
+
+form div:nth-child(n + 3) {
+    flex-basis: calc(50% - 5px);
+}
+
+input#type {
+    appearance: none;
+    position: absolute;
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background: #eee;
+    border-radius: 5px;
+    position: relative;
+}
+
+.option span {
+    width: 50%;
+    text-align: center;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.option::before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 0;
+    background-color: #fff;
+    height: calc(100% - 10px);
+    width: calc(50% - 10px);
+    transform: translateX(5px);
+    border-radius: inherit;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+    transition: all 200ms;
+}
+
+input#type:checked ~ .option::before {
+    left: 50%;
+}
+
+ul {
+    list-style-type: none;
+}
+
+ul li {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 5px 10px;
+    position: relative;
+    transition: background-color 0.3s; /* Smooth transition on hover */
+}
+
+ul li:hover {
+    background: rgba(0, 0, 0, 0.05); 
+}
+
+.name {
+    flex: 1;
+}
+
+.name h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.name p {
+    font-size: 0.8rem;
+    color: #555;
+}
+
+.amount {
+    font-weight: 600;
+}
+
+.amount.income {
+    color: yellowgreen;
+}
+
+.amount.expense {
+    color: indianred;
+}
+
+.action {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #f00;
+    color: #fff;
+    height: 100%;
+    width: 50px;
+    display: grid;
+    place-items: center;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: all 300ms;
+}
+
+ul li:hover .action {
+    transform: scaleX(1);
+}
+
+.action svg {
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+}
+
+#status {
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+/* Focus styles for improved accessibility */
+input:focus, select:focus, button:focus {
+  outline: 2px solid var(--main-color); 
+  outline-offset: 2px;
+}
+
+/* Basic responsiveness - adjust as needed */
+@media (max-width: 500px) {
+    main {
+        max-width: 90%; /* Take up most of the screen on smaller devices */
+    }
+
+    form div:nth-child(n + 3) {
+        flex-basis: 100%; /* Stack form elements on small screens */
+    }
+}
+
+transaction-form-container input, 
+        #transaction-form-container select {
+            border: none; 
+            border-bottom: 1px solid #ccc; 
+            border-radius: 0; 
+        }
+
+        #transaction-form-container button[type="submit"] {
+            background-color: #007bff; /* Blue button color */
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem; 
+            border-radius: 5px; 
+            font-weight: 500;
+        }
+
+        #transactionList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Vertically center items */
+            padding: 0.5rem 1rem; 
+        }
+
+        .edit-btn, .delete-btn {
+            background: none;
+            border: none;
+            color: #007bff; 
+            cursor: pointer;
+            margin-left: 1rem; 
+        }
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
