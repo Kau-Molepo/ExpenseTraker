@@ -193,25 +193,6 @@ input[type=submit] {
     border-radius: 3px;
 }
 
-/* New styles for pop-up messages */
-#message {
-    display: none;
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-weight: bold;
-    z-index: 1000;
-}
-
-#message.error {
-    background-color: #ff6b6b;
-    color: white;
-}
-
-#message.success {
-    background-color: #51cf66;
-    color: white;
+#auth-msg {
+    color: #000;
 }

@@ -1,0 +1,4 @@
+node_modules
+*JSON  
+.env
+test

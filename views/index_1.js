@@ -46,11 +46,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const expenseElement = document.getElementById("expense");
   const statusElement = document.getElementById("status");
 
-  // Get references to modal elements
-  const editModal = document.getElementById('editModal');
-  const editForm = document.getElementById('editForm');
-  const closeBtn = document.querySelector('.close-btn');
-
   let transactions = [];
   let incomes = [];
 
@@ -208,68 +203,6 @@ document.addEventListener("DOMContentLoaded", function () {
     debug("UI updated with new balances");
   }
 
-
-  // Function to open the edit modal
-  function openEditModal(transaction) {
-    editForm.innerHTML = `
-        <input type="hidden" id="editExpenseId" value="${transaction.expense_id}">
-        <div class="form-group">
-            <label for="editDescription">Description:</label>
-            <input type="text" id="editDescription" value="${transaction.description}" required>
-        </div>
-        <div class="form-group">
-            <label for="editAmount">Amount:</label>
-            <input type="number" id="editAmount" value="${transaction.amount}" step="0.01" required>
-        </div>
-        <div class="form-group">
-            <label for="editDate">Date:</label>
-            <input type="date" id="editDate" value="${transaction.date}" required>
-        </div>
-        <div class="form-group">
-            <label for="editCategory">Category:</label>
-            <select id="editCategory" required>
-                ${generateCategoryOptions(transaction.category_id)}
-            </select>
-        </div>
-        <button type="submit">Save Changes</button>
-    `;
-    editModal.style.display = 'block';
-  }
-
-  // Function to generate category options
-  function generateCategoryOptions(selectedCategoryId) {
-      const categories = [
-          { id: 1, name: 'Food' },
-          { id: 2, name: 'Transportation' },
-          { id: 3, name: 'Housing' },
-          { id: 4, name: 'Utilities' },
-          { id: 5, name: 'Healthcare' },
-          { id: 6, name: 'Entertainment' },
-          { id: 7, name: 'Education' },
-          { id: 8, name: 'Shopping' },
-          { id: 9, name: 'Personal Care' },
-          { id: 10, name: 'Debt Payments' },
-          { id: 11, name: 'Savings' },
-          { id: 12, name: 'Gifts & Donations' },
-          { id: 13, name: 'Miscellaneous' }
-      ];
-      return categories.map(category => 
-          `<option value="${category.id}" ${category.id === selectedCategoryId ? 'selected' : ''}>${category.name}</option>`
-      ).join('');
-  }
-
-  // Close the modal
-  closeBtn.onclick = function() {
-      editModal.style.display = 'none';
-  }
-
-  // Close the modal if clicked outside
-  window.onclick = function(event) {
-      if (event.target === editModal) {
-          editModal.style.display = 'none';
-      }
-  }
-
   // Handle form submission for adding a new transaction
   transactionForm?.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -331,7 +264,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Handle form submission for adding a new income
+  // Handle form submission for adding a new transaction
   transactionForm?.addEventListener("submit", async function (e) {
     e.preventDefault();
     debug("Submitting new transaction");
@@ -398,76 +331,45 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // Convert the expenseId to a number if it's stored as a number in the transactions array
-        const expenseId = Number(e.target.getAttribute('data-id'));
-        const transactionToEdit = transactions.find(t => t.expense_id === expenseId);
+        const expenseId = e.target.getAttribute('data-id');
+        const newAmount = parseFloat(prompt('Enter new amount:'));
+        const newDate = prompt('Enter new date (YYYY/MM/DD):');
+        const newDescription = prompt('Enter new description:');
+        const newCategoryId = /*parseInt(prompt('Enter new category ID:'))*/'3';
 
-        if (transactionToEdit) {
-            openEditModal(transactionToEdit);
-        } else {
-            displayMessage(statusElement, 'Transaction not found', true);
-            debug('Transaction not found');
+        if (isNaN(newAmount) || !newDate || !newDescription || isNaN(newCategoryId)) {
+            displayMessage(statusElement, 'Invalid input provided', true);
+            debug('Editing failed: Invalid input provided');
+            return;
         }
-    }
-  });
 
-  // Handle form submission for editing a transaction
-  editForm.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      debug('Submitting edited transaction');
+        const editedExpense = { expense_id: expenseId, amount: newAmount, date: newDate, description: newDescription, category_id: newCategoryId };
 
-      const isLoggedIn = await checkAuthStatus();
-          if (!isLoggedIn) {
-              displayMessage(statusElement, 'User not logged in', true);
-              debug('User not logged in');
-              return;
-          }
+        try {
+            const response = await fetch(`/expenses/edit`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(editedExpense)
+            });
 
-      const expenseId = document.getElementById('editExpenseId').value;
-      const newAmount = parseFloat(document.getElementById('editAmount').value);
-      const newDate = document.getElementById('editDate').value;
-      const newDescription = document.getElementById('editDescription').value;
-      const newCategoryId = parseInt(document.getElementById('editCategory').value);
-
-      const validationError = validateForm([newAmount.toString(), newDate, newDescription, newCategoryId.toString()]);
-      if (validationError) {
-          displayMessage(statusElement, validationError, true);
-          debug(`Form validation failed: ${validationError}`);
-          return;
-      }
-
-      const editedExpense = { 
-          expense_id: expenseId,
-          amount: newAmount, 
-          date: newDate, 
-          description: newDescription, 
-          category_id: newCategoryId 
-      };
-
-      try {
-          const response = await fetch(`/expenses/edit`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(editedExpense)
-          });
-
-          if (response.ok) {
-              const updatedExpense = await response.json();
-              transactions = transactions.map(t => t.expense_id === expenseId ? updatedExpense : t);
-              fetchTransactions();
-              updateUI();
-              editModal.style.display = 'none';
-              displayMessage(statusElement, 'Expense updated successfully');
-              debug('Transaction updated successfully');
-          } else {
-              const data = await response.json();
-              displayMessage(statusElement, `Error: ${data.message}`, true);
-              debug(`Error updating transaction: ${data.message}`);
-          }
-      } catch (error) {
-          console.error('Error updating expense:', error);
-          displayMessage(statusElement, 'Error updating expense', true);
-          debug(`Error updating transaction: ${error.message}`);
+            if (response.ok) {
+                const updatedExpense = await response.json();
+                transactions = transactions.map(t => t.expense_id === expenseId ? updatedExpense : t);
+                fetchTransactions(); 
+                updateUI();
+                transactionForm.reset();
+                displayMessage(statusElement, 'Expense updated successfully');
+                debug('Transaction updated successfully');
+            } else {
+                const data = await response.json();
+                displayMessage(`statusElement, Error: ${data.message}, true`);
+                debug(`Error updating transaction: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Error updating expense:', error);
+            displayMessage(statusElement, 'Error updating expense', true);
+            debug(`Error updating transaction: ${error.message}`);
+        }
       }
   });
 
@@ -564,5 +466,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+// function updateBalance() {
+//     // Recalculate and update the total balance
+//     // ...
+// }
+
+  // Initial fetch of transactions when the page loads
   fetchTransactions();
 });
