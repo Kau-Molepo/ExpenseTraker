@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!isLoggedIn) {
       displayMessage(statusElement, "User not logged in", true);
       debug("User not logged in");
+      window.location.href = "/login.html"
       return;
     }
 
