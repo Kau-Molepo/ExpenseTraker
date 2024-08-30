@@ -57,7 +57,7 @@ app.use((req, res) => {
     res.status(404).send('Page not found');
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.DB_PORT;
 app.listen(PORT, () => {
     debug(`Server running at http://localhost:${PORT}`);
 });
