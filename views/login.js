@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 authMsg.textContent = "Login successful"
                 window.location.href = "/index.html"
+                return;
             }
     
 

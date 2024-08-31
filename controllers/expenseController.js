@@ -72,7 +72,7 @@ exports.viewIncomes = (req, res) => {
         if (err) {
             // Error while querying the database
             console.error('Error fetching incomes:', err);
-            return res.status(500).json({ message: 'Error fetching incomes EC' });
+            return res.status(500).json({ message: 'Error fetching incomes' });
         }
         // Respond with budgets wrapped in an object
         res.status(200).json({ budgets: results });
