@@ -120,6 +120,6 @@ exports.status = (req, res) => {
     if (req.session.userId) {
         res.status(200).json({ message: "User verified", isLoggedIn: true });
     } else {
-        res.status(404).json({ message: 'User not logged in', isLoggedIn: false });
+        res.status(401).json({ message: 'User not logged in', isLoggedIn: false });
     }
 };

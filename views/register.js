@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 authMsg.textContent = "User already exists!"
             } else {
                 authMsg.textContent = "User created successfully"
+                window.location.href = "/login.html"
             }
 
         } catch (err) {
