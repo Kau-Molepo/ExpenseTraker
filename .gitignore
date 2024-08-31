@@ -1,6 +1,5 @@
 node_modules
-*JSON  
 .env
 test
 .vercel
-vercel.json
+.env*.local
