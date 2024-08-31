@@ -5,5 +5,27 @@
       "src": "app.js",
       "use": "@vercel/node"
     }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/app.js"
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "/app.js"
+    },
+    {
+      "src": "/expenses/(.*)",
+      "dest": "/app.js"
+    },
+    {
+      "src": "/incomes/(.*)",
+      "dest": "/app.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/app.js"
+    }
   ]
 }

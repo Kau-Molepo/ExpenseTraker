@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            if(!response.ok) {
+            if(!response.ok ) {
                 authMsg.textContent = "User already exists!"
             } else {
                 authMsg.textContent = "User created successfully"

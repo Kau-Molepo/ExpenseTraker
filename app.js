@@ -82,13 +82,5 @@ app.use((req, res) => {
     res.status(404).send('Page not found');
 });
 
-const PORT = process.env.PORT || 3000;  // Changed from DB_PORT to PORT
-
-app.listen(PORT, () => {
-    debug(`Server running at http://localhost:${PORT}`, {
-        env: process.env.NODE_ENV,
-        port: PORT
-    });
-});
 
 module.exports = app;
