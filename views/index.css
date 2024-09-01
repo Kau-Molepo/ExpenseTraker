@@ -238,6 +238,54 @@ ul li:hover .action {
   color: #000;
 }
 
+/* Focus styles for improved accessibility */
+input:focus, select:focus, button:focus {
+  outline: 2px solid var(--main-color); 
+  outline-offset: 2px;
+}
+
+/* Basic responsiveness - adjust as needed */
+@media (max-width: 500px) {
+    main {
+        max-width: 90%; /* Take up most of the screen on smaller devices */
+    }
+
+    form div:nth-child(n + 3) {
+        flex-basis: 100%; /* Stack form elements on small screens */
+    }
+}
+
+transaction-form-container input, 
+        #transaction-form-container select {
+            border: none; 
+            border-bottom: 1px solid #ccc; 
+            border-radius: 0; 
+        }
+
+        #transaction-form-container button[type="submit"] {
+            background-color: #007bff; /* Blue button color */
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem; 
+            border-radius: 5px; 
+            font-weight: 500;
+        }
+
+        #transactionList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; /* Vertically center items */
+            padding: 0.5rem 1rem; 
+        }
+
+        .edit-btn, .delete-btn, .delete-income-btn {
+            background: none;
+            border: none;
+            color: #007bff; 
+            cursor: pointer;
+            margin-left: 1rem; 
+        }
+
 /* Modal styles */
 .modal {
   display: none;
