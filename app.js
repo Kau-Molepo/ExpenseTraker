@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 const authRoutes = require('./routes/auth');
 const expenseRoutes = require('./routes/expenses');
 const incomeRoutes = require('./routes/incomes');
@@ -14,6 +15,37 @@ function debug(message, details = {}) {
     console.log(`[SERVER] ${message}`, JSON.stringify(details, null, 2));
 }
 
+// MySQL session store options
+const sessionStoreOptions = {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    clearExpired: true,
+    checkExpirationInterval: 900000, // 15 minutes
+    expiration: 86400000, // 24 hours
+};
+
+// Create a session store
+const sessionStore = new MySQLStore(sessionStoreOptions);
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Set up session middleware with MySQL store
+app.use(session({
+    key: 'session_cookie_name',
+    secret: process.env.SESSION_SECRET,
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // set secure cookies in production
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
 // Enhanced middleware for logging requests
 app.use((req, res, next) => {
     debug(`Received ${req.method} request for ${req.url}`, {
@@ -21,7 +53,7 @@ app.use((req, res, next) => {
         query: req.query,
         body: req.body
     });
-    
+
     // Log response
     const originalJson = res.json;
     res.json = function(body) {
@@ -31,17 +63,9 @@ app.use((req, res, next) => {
         });
         originalJson.call(this, body);
     };
-    
+
     next();
 });
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true
-}));
 
 // Handle favicon.ico request
 app.get('/favicon.ico', (req, res) => {
@@ -57,13 +81,19 @@ app.use('/auth', (req, res, next) => {
 
 // Route for expenses
 app.use('/expenses', (req, res, next) => {
-    debug('Entering expenses route');
+    debug('Entering expenses route, Session:', req.session);
+    if (!req.session.userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
     next();
 }, expenseRoutes);
 
-// Route for Income
+// Route for incomes
 app.use('/incomes', (req, res, next) => {
-    debug('Entering incomes route');
+    debug('Entering incomes route, Session:', req.session);
+    if (!req.session.userId) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
     next();
 }, incomeRoutes);
 
@@ -81,6 +111,5 @@ app.use((req, res) => {
     debug(`404 error: ${req.method} request for ${req.url} not found`);
     res.status(404).send('Page not found');
 });
-
 
 module.exports = app;

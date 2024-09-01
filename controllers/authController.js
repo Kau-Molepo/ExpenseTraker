@@ -1,10 +1,8 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
-const db = require('../config/db'); // Ensure this module is properly set up for executing SQL queries
+const db = require('../config/db');
 
-// Create a global object to store the current user's ID
-global.currentUser = { id: 0 };
-
+// Handles user registration
 exports.register = (req, res) => {
     const { username, email, password } = req.body;
 
@@ -60,6 +58,7 @@ exports.register = (req, res) => {
     });
 };
 
+// Handles user login
 exports.login = (req, res) => {
     const { username, password } = req.body;
 
@@ -90,8 +89,7 @@ exports.login = (req, res) => {
 
             req.session.userId = user.user_id;  // Set the userId in the session
             console.log('[LOGIN] Session UID:', req.session.userId);
-            global.currentUser.id = user.user_id;
-            console.log('[LOGIN] Session Global ID:', global.currentUser.id);
+
             req.session.save(err => {
                 if (err) {
                     console.error('[LOGIN] Error saving session:', err);
@@ -100,16 +98,14 @@ exports.login = (req, res) => {
                 console.log('[LOGIN] Session object after save:', req.session);
                 console.log('[LOGIN] Login successful for user:', username);
                 return res.status(200).json({ message: 'Login Successful' });
-                //res.status(200).redirect('/expenses/view');
             });
         });
     });
 };
 
-
-
+// Handles user logout
 exports.logout = (req, res) => {
-    console.log('[LOGOUT] User logging out:', userNr);
+    console.log('[LOGOUT] Logging out user with session ID:', req.session.userId);
     req.session.destroy(err => {
         if (err) {
             console.error('[LOGOUT] Error destroying session:', err);
@@ -120,10 +116,11 @@ exports.logout = (req, res) => {
     });
 };
 
+// Checks if the user is logged in
 exports.status = (req, res) => {
-    console.log('[STATUS] Global userNr:', global.userNr);
-    
-    if (global.userNr !== 0) {
+    console.log('[STATUS] Checking session:', req.session);
+
+    if (req.session.userId) {
         res.status(200).json({ message: "User verified", isLoggedIn: true });
     } else {
         res.status(401).json({ message: 'User not logged in', isLoggedIn: false });

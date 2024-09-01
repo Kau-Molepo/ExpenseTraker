@@ -14,37 +14,30 @@ async function checkAuthStatus() {
 function debug(message) {
   console.log(`[CLIENT] ${message}`);
 }
-
 // Function to validate form inputs
 function validateForm(inputs) {
-  for (let input of inputs) {
-    if (input === null || input === undefined || input.trim() === '') {
-      debug(`Validation failed for field: ${input}`);
-      return `Please fill in the required fields.`;
+    for (let input of inputs) {
+        if (input === null || input === undefined || input.trim() === '') {
+            debug(`Validation failed for field: ${input}`);
+            return `Please fill in the required fields.`;
+        }
     }
-  }
-  return null;
+    return null;
 }
 
 // Utility function for displaying messages on the UI
 function displayMessage(element, message, isError = false) {
-  if (element) {
-    element.innerText = message;
-    element.style.color = isError ? 'red' : 'green';
-    debug(`Message displayed: ${message}`);
-  } else {
-    console.error('Attempted to display a message, but the target element is missing.');
-  }
+    if (element) {
+        element.innerText = message;
+        element.style.color = isError ? 'red' : 'green';
+        debug(`Message displayed: ${message}`);
+    } else {
+        console.error('Attempted to display a message, but the target element is missing.');
+    }
 }
 
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", function () {
   debug("DOM content loaded");
-
-  const isLoggedIn = await checkAuthStatus();
-  if (!isLoggedIn) {
-    window.location.href = "/login.html";
-    return;
-  }
 
   const transactionForm = document.getElementById("transactionForm");
   const transactionList = document.getElementById("transactionList");
@@ -144,6 +137,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       displayMessage(statusElement, "Error fetching incomes", true);
       debug(`Error fetching incomes: ${error.message}`);
     }
+
   }
 
   // Function to update the UI with current transactions and balances
@@ -277,155 +271,299 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
   }
 
-  // Form submission handler
-  transactionForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-  
-    const formData = new FormData(transactionForm);
-    const description = formData.get("description");
-    const amount = formData.get("amount");
-    const date = formData.get("date");
-    const category = formData.get("category");
-  
-    const validationError = validateForm([description, amount, date, category]);
-    if (validationError) {
-      displayMessage(statusElement, validationError, true);
-      debug(`Form validation failed: ${validationError}`);
+  // Handle form submission for adding a new transaction
+  transactionForm?.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    debug("Submitting new transaction");
+
+    const isLoggedIn = await checkAuthStatus();
+    if (!isLoggedIn) {
+      displayMessage(statusElement, "User not logged in", true);
+      debug("User not logged in");
       return;
     }
-  
+
+    // Check which option is selected (Expense or Income)
+    const isExpense = !document.getElementById("type").checked;
+    
+    if (!isExpense){
+      debug(`Transaction type: ${isExpense ? "Expense" : "Income"}`);
+      return;
+    } 
+
+    const formData = new FormData(transactionForm);
+    const amount = parseFloat(formData.get("amount") || "0");
+    const date = formData.get("date") || "";
+    const description = formData.get("description") || "";
+    const category_id = /*parseInt(formData.get("category_id") || "0")*/'3';
+
+    const validationError = validateForm([amount.toString(), date, description]);
+    if (validationError) {
+        displayMessage(statusElement, validationError, true);
+        debug(`Form validation failed: ${validationError}`);
+        return;
+    }
+
+    const newExpense = { amount, date, description, category_id };
+
     try {
       const response = await fetch("/expenses/add", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          description,
-          amount: parseFloat(amount),
-          date,
-          category_id: parseInt(category),
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newExpense),
       });
-  
       const data = await response.json();
+
       if (response.ok) {
-        displayMessage(statusElement, "Transaction added successfully", false);
-        debug("Transaction added successfully");
-        fetchTransactions(); // Refresh the transaction list after adding
+        transactions.push(data.expense);
+        fetchTransactions();
+        updateUI();
         transactionForm.reset();
+        displayMessage(statusElement, "Expense added successfully");
+        debug("New transaction added successfully");
       } else {
-        displayMessage(statusElement, `Error adding transaction: ${data.message}`, true);
+        displayMessage(`statusElement, Error: ${data.message}, true`);
         debug(`Error adding transaction: ${data.message}`);
       }
     } catch (error) {
-      console.error("Error adding transaction:", error);
-      displayMessage(statusElement, "Error adding transaction", true);
+      console.error("Error adding expense:", error);
+      displayMessage(statusElement, "Error adding expense", true);
       debug(`Error adding transaction: ${error.message}`);
     }
   });
 
-  // Edit form submission handler
-  editForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
+  // Handle form submission for adding a new income
+  transactionForm?.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    debug("Submitting new transaction");
 
-    const expenseId = document.getElementById('editExpenseId').value;
-    const description = document.getElementById('editDescription').value;
-    const amount = document.getElementById('editAmount').value;
-    const date = document.getElementById('editDate').value;
-    const category = document.getElementById('editCategory').value;
-
-    const validationError = validateForm([description, amount, date, category]);
-    if (validationError) {
-      displayMessage(statusElement, validationError, true);
-      debug(`Form validation failed: ${validationError}`);
+    const isLoggedIn = await checkAuthStatus();
+    if (!isLoggedIn) {
+      displayMessage(statusElement, "User not logged in", true);
+      debug("User not logged in");
       return;
     }
 
-    try {
-      const response = await fetch(`/expenses/edit/${expenseId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          description,
-          amount: parseFloat(amount),
-          date,
-          category_id: parseInt(category)
-        })
-      });
+    const formData = new FormData(transactionForm);
 
+    // Check which option is selected (Expense or Income)
+    const isExpense = !document.getElementById("type").checked;
+    
+    if (isExpense){
+      debug(`Transaction type: ${isExpense ? "Expense" : "Income"}`);
+      return;
+    } 
+
+    const amount = parseFloat(formData.get("amount") || "0");
+    const start_date = formData.get("date") || "";
+    const end_date = formData.get("date") || "";
+    const description = formData.get("description") || "";
+    const category_id = /*parseInt(formData.get("category_id") || "0")*/'3';
+    const newIncome = { amount, start_date, end_date, description, category_id };
+
+    try {
+      const response = await fetch("/incomes/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newIncome),
+      });
       const data = await response.json();
+
       if (response.ok) {
-        displayMessage(statusElement, 'Transaction updated successfully', false);
-        debug('Transaction updated successfully');
+        transactions.push(data.expense);
         fetchTransactions();
-        editModal.style.display = 'none'; // Close the modal after saving
+        updateUI();
+        transactionForm.reset();
+        displayMessage(statusElement, "Incomes added successfully");
+        debug("New incomes added successfully");
       } else {
-        displayMessage(statusElement, `Error updating transaction: ${data.message}`, true);
-        debug(`Error updating transaction: ${data.message}`);
+        displayMessage(`statusElement, Error: ${data.message}, true`);
+        debug(`Error adding transaction: ${data.message}`);
       }
     } catch (error) {
-      console.error('Error updating transaction:', error);
-      displayMessage(statusElement, 'Error updating transaction', true);
-      debug(`Error updating transaction: ${error.message}`);
+      console.error("Error adding income:", error);
+      displayMessage(statusElement, "Error adding income", true);
+      debug(`Error adding transaction: ${error.message}`);
     }
   });
 
-  // Handle delete buttons
-  transactionList.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete-btn')) {
-      const expenseId = event.target.dataset.id;
-      const confirmDelete = confirm("Are you sure you want to delete this transaction?");
-      if (!confirmDelete) return;
+  // Handle editing of a transaction
+  transactionList?.addEventListener('click', async function (e) {
+    if (e.target.classList.contains('edit-btn')) {
+        debug('Editing transaction');
+
+        const isLoggedIn = await checkAuthStatus();
+        if (!isLoggedIn) {
+            displayMessage(statusElement, 'User not logged in', true);
+            debug('User not logged in');
+            return;
+        }
+
+        // Convert the expenseId to a number if it's stored as a number in the transactions array
+        const expenseId = Number(e.target.getAttribute('data-id'));
+        const transactionToEdit = transactions.find(t => t.expense_id === expenseId);
+
+        if (transactionToEdit) {
+            openEditModal(transactionToEdit);
+        } else {
+            displayMessage(statusElement, 'Transaction not found', true);
+            debug('Transaction not found');
+        }
+    }
+  });
+
+  // Handle form submission for editing a transaction
+  editForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      debug('Submitting edited transaction');
+
+      const isLoggedIn = await checkAuthStatus();
+          if (!isLoggedIn) {
+              displayMessage(statusElement, 'User not logged in', true);
+              debug('User not logged in');
+              return;
+          }
+
+      const expenseId = document.getElementById('editExpenseId').value;
+      const newAmount = parseFloat(document.getElementById('editAmount').value);
+      const newDate = document.getElementById('editDate').value;
+      const newDescription = document.getElementById('editDescription').value;
+      const newCategoryId = parseInt(document.getElementById('editCategory').value);
+
+      const validationError = validateForm([newAmount.toString(), newDate, newDescription, newCategoryId.toString()]);
+      if (validationError) {
+          displayMessage(statusElement, validationError, true);
+          debug(`Form validation failed: ${validationError}`);
+          return;
+      }
+
+      const editedExpense = { 
+          expense_id: expenseId,
+          amount: newAmount, 
+          date: newDate, 
+          description: newDescription, 
+          category_id: newCategoryId 
+      };
 
       try {
-        const response = await fetch(`/expenses/delete/${expenseId}`, {
-          method: 'DELETE'
-        });
+          const response = await fetch(`/expenses/edit`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(editedExpense)
+          });
 
-        const data = await response.json();
-        if (response.ok) {
-          displayMessage(statusElement, 'Transaction deleted successfully', false);
-          debug('Transaction deleted successfully');
-          fetchTransactions(); // Refresh the transaction list after deletion
-        } else {
-          displayMessage(statusElement, `Error deleting transaction: ${data.message}`, true);
-          debug(`Error deleting transaction: ${data.message}`);
-        }
+          if (response.ok) {
+              const updatedExpense = await response.json();
+              transactions = transactions.map(t => t.expense_id === expenseId ? updatedExpense : t);
+              fetchTransactions();
+              updateUI();
+              editModal.style.display = 'none';
+              displayMessage(statusElement, 'Expense updated successfully');
+              debug('Transaction updated successfully');
+          } else {
+              const data = await response.json();
+              displayMessage(statusElement, `Error: ${data.message}`, true);
+              debug(`Error updating transaction: ${data.message}`);
+          }
       } catch (error) {
-        console.error('Error deleting transaction:', error);
-        displayMessage(statusElement, 'Error deleting transaction', true);
-        debug(`Error deleting transaction: ${error.message}`);
+          console.error('Error updating expense:', error);
+          displayMessage(statusElement, 'Error updating expense', true);
+          debug(`Error updating transaction: ${error.message}`);
       }
+  });
+
+  // Handle deletion of a transaction
+  transactionList?.addEventListener('click', async function (e) {
+    if (e.target.classList.contains('delete-btn')) {
+        debug('Deleting transaction');
+
+        const isLoggedIn = await checkAuthStatus();
+        if (!isLoggedIn) {
+            displayMessage(statusElement, 'User not logged in', true);
+            debug('User not logged in');
+            return;
+        }
+
+        const expenseId = e.target.getAttribute('data-id');
+
+        if (!confirm('Are you sure you want to delete this transaction?')) {
+            debug('Deletion canceled by user');
+            return;
+        }
+
+        try {
+            const response = await fetch('/expenses/delete',{ 
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({id: expenseId})
+            });
+
+            if (response.ok) {
+                transactions = transactions.filter(transaction => transaction.expense_id !== expenseId);
+                fetchTransactions(); 
+                updateUI();
+                transactionForm.reset();
+                displayMessage(statusElement, 'Expense deleted successfully');
+                debug('Transaction deleted successfully');
+            } else {
+                const data = await response.json();
+                displayMessage(statusElement, `Error: ${data.message}`, true);
+                debug(`Error deleting transaction: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Error deleting expense:', error);
+            displayMessage(statusElement, 'Error deleting expense', true);
+            debug(`Error deleting transaction: ${error.message}`);
+        }
+      }
+  });
+
+  // Handle deletion of an income
+  transactionList?.addEventListener('click', async function (e) {
+    if (e.target.classList.contains('delete-income-btn')) {
+        debug('Deleting income');
+
+        const isLoggedIn = await checkAuthStatus();
+        if (!isLoggedIn) {
+            displayMessage(statusElement, 'User not logged in', true);
+            debug('User not logged in');
+            return;
+        }
+
+        const incomeId = e.target.getAttribute('data-id');
+
+        if (!confirm('Are you sure you want to delete this income?')) {
+            debug('Deletion canceled by user');
+            debug(incomeId);
+            return;
+        }
+
+        try {
+            const response = await fetch('/incomes/delete', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({id: incomeId})
+            });
+
+            if (response.ok) {
+                incomes = incomes.filter(income => income.budget_id !== incomeId);
+                fetchTransactions(); 
+                updateUI();
+                transactionForm.reset();
+                displayMessage(statusElement, 'Income deleted successfully');
+                debug('Income deleted successfully');
+            } else {
+                const data = await response.json();
+                displayMessage(statusElement, `Error: ${data.message}`, true);
+                debug(`Error deleting income: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Error deleting income:', error);
+            displayMessage(statusElement, 'Error deleting income', true);
+            debug(`Error deleting income: ${error.message}`);
+        }
     }
   });
 
-  // Handle edit buttons
-  transactionList.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('edit-btn')) {
-      const expenseId = event.target.dataset.id;
-
-      try {
-        const response = await fetch(`/expenses/view/${expenseId}`);
-        const transaction = await response.json();
-
-        if (response.ok) {
-          openEditModal(transaction); // Populate and open the edit modal
-          debug('Edit button clicked, modal opened');
-        } else {
-          displayMessage(statusElement, `Error fetching transaction: ${transaction.message}`, true);
-          debug(`Error fetching transaction: ${transaction.message}`);
-        }
-      } catch (error) {
-        console.error('Error fetching transaction:', error);
-        displayMessage(statusElement, 'Error fetching transaction', true);
-        debug(`Error fetching transaction: ${error.message}`);
-      }
-    }
-  });
-
-  // Initially fetch transactions when the page loads
   fetchTransactions();
 });
