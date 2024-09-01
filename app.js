@@ -23,8 +23,8 @@ const sessionStoreOptions = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     clearExpired: true,
-    checkExpirationInterval: 60000*5, // 1 minute*5 = 5 minutes
-    expiration: 60000*15, // 1 minute*15 = 15 minutes
+    checkExpirationInterval: 60000*5, // 1 minute*5 = 5 minutes   //Session Cleanup: Expired sessions are checked and removed every 5 minutes
+    expiration: 60000*15, // 1 minute*15 = 15 minutes    //  Session Inactivity Expiration: The session will expire after 15 minutes of inactivity. 
 };
 
 // Create a session store
@@ -42,7 +42,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         secure: process.env.NODE_ENV === 'production', // set secure cookies in production
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours  // Session Cookie Expiration: The session will expire after 24 hours if the user doesn't log out.
     }
 }));
 

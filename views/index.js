@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const incomeElement = document.createElement("li");
       incomeElement.classList.add("income");
       incomeElement.innerHTML = `
-        ${description}  +$${incomeValue.toFixed(2)} 
+        ${description}  +R ${incomeValue.toFixed(2)} 
         <!-- <button data-id="${budget_id}" class="edit-income-btn">Edit</button> -->
         <button data-id="${budget_id}" class="delete-income-btn">Delete</button>
       `;
@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const expenseElement = document.createElement("li");
         expenseElement.classList.add("expense");
         expenseElement.innerHTML = `
-          ${description} -$${Math.abs(expenseValue).toFixed(2)} 
+          ${description} -R ${Math.abs(expenseValue).toFixed(2)} 
           <button data-id="${expense_id}" class="edit-btn">Edit</button>
           <button data-id="${expense_id}" class="delete-btn">Delete</button>
         `;
@@ -202,9 +202,9 @@ document.addEventListener("DOMContentLoaded", function () {
     totalBalance = totalIncome - totalExpense;
     
     // Update UI with the calculated values
-    balanceElement.innerText = `$${totalBalance.toFixed(2)}`;
-    incomeElement.innerText = `$${totalIncome.toFixed(2)}`;
-    expenseElement.innerText = `-$${totalExpense.toFixed(2)}`;
+    balanceElement.innerText = `R ${totalBalance.toFixed(2)}`;
+    incomeElement.innerText = `R ${totalIncome.toFixed(2)}`;
+    expenseElement.innerText = `-R ${totalExpense.toFixed(2)}`;
     
     debug("UI updated with new balances");
   }
