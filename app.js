@@ -23,8 +23,8 @@ const sessionStoreOptions = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     clearExpired: true,
-    checkExpirationInterval: 900000, // 15 minutes
-    expiration: 86400000, // 24 hours
+    checkExpirationInterval: 60000*5, // 1 minute*5 = 5 minutes
+    expiration: 60000*15, // 1 minute*15 = 15 minutes
 };
 
 // Create a session store
