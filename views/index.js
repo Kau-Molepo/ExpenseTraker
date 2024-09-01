@@ -295,7 +295,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const amount = parseFloat(formData.get("amount") || "0");
     const date = formData.get("date") || "";
     const description = formData.get("description") || "";
-    const category_id = /*parseInt(formData.get("category_id") || "0")*/'3';
+    const category_id = parseInt(formData.get("category_id") || "0");
 
     const validationError = validateForm([amount.toString(), date, description]);
     if (validationError) {
@@ -358,7 +358,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const start_date = formData.get("date") || "";
     const end_date = formData.get("date") || "";
     const description = formData.get("description") || "";
-    const category_id = /*parseInt(formData.get("category_id") || "0")*/'3';
+    const category_id = parseInt(formData.get("category_id") || "0");
     const newIncome = { amount, start_date, end_date, description, category_id };
 
     try {
